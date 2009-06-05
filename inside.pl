@@ -1,5 +1,5 @@
 :- chr_constraint rule/3, sentence/1, word/2.
-
+%test
 remove_empty_sentence @ sentence(_,[]) <=> true.
 split_sentence @
 sentence(Time,[Elem|R]) <=> 
