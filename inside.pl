@@ -16,9 +16,8 @@ root(N) \ root(N) <=> true.
 notroot(N) \ notroot(N) <=> true.
 notroot(N) \ root(N) <=> true.
 rule(N,_,_) ==> root(N).
+%rule(N,[_]) ==> notroot(N).
 rule(_,[A,B],_) ==> notroot(A), notroot(B).
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % inside algoritm:
@@ -36,7 +35,7 @@ inside(N,L1,P,Q,Prob1), inside(N,L2,P,Q,Prob2) <=>
 inside_base_case @
 level(1), % Not strictly necessary
 word(Pos,Word), rule(NonTerm,[Word],Prob) ==>
-	write('base-case'),nl,
+	write('inside (basecase):'),nl, write(word(Pos,Word)), write(','),write(rule(NonTerm,[Word],Prob)), write('==>'), write(inside(NonTerm,1,Pos,Pos,Prob)), nl.
     inside(NonTerm, 1, Pos, Pos, Prob).
 
 inside_recursion @
@@ -45,6 +44,7 @@ level(L), rule(NonTermJ, [NonTermR,NonTermS], JProb), inside(NonTermR, L1, P, D,
 	NextLevel is L + 1,
     D1 is D + 1,
     BetaProb is ProbR * ProbS * JProb,
+	write('inside: '),
     write(rule(NonTermJ, [NonTermR,NonTermS], JProb)),
     write(','),
     write(inside(NonTermR, L1, P, D, ProbR)),write(','),
@@ -57,6 +57,7 @@ sentence_length(SL) \ level(L) <=> L < SL + 1 | write('increase level'), nl, M i
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % outside algorithm
+
 outside_base_case1 @
 sentence_length(L), rule(N,_,_), root(N) ==> outside(N,1,L,1).
 
@@ -65,19 +66,25 @@ sentence_length(L), rule(N,_,_), notroot(N) ==> outside(N,1,L,0).
 
 
 outside_sum_multiple @
-outside(N,P,Q,P1), outside(N,P,Q,P2) <=> Prob is P1 * P2, outside(N,P,Q,Prob).
+outside(N,P,Q,P1), outside(N,P,Q,P2) <=> 
+	Prob is P1 + P2,
+	write('outside_sum_multiple: '), write(outside(N,P,Q,P1)), write(','), write(outside(N,P,Q,P2)), write(' <=> '), write(outside(N,P,Q,Prob)),nl,
+	outside(N,P,Q,Prob).
+
 outside_left_recursion @
 rule(NF, [NJ, NG],  PF), outside(NF,P,E,PaF), inside(NG, _Lvl, Q1, E, PbG) ==>
 	Q is Q1 - 1,
 	PJ is PF * PaF * PbG
 	|
+	write('outside_left_rec: '), write(rule(NF,[NJ,NG],PF)), write(','), write(outside(NF,P,E,PaF)), write(','), write(inside(NG,_,Q1,E,PbG)), write('==>'), write(outside(NJ,P,Q,PJ)), nl,
 	outside(NJ,P,Q,PJ).
 	
 outside_right_recursion @
-rule(NF, [NJ, NG],  PF), outside(NF,P,E,PaF), inside(NG, _Lvl, P, Q, PbG) ==>
+rule(NF,[NJ,NG],PF), outside(NF,P,E,PaF), inside(NG,_Lvl,P,Q,PbG) ==>
 	Q1 is Q + 1,
 	PJ is PF * PaF * PbG
 	|
+	write('outside_right_rec: '), write(rule(NF,[NJ,NG],PF)), write(','), write(outside(NF,P,E,PaF)), write(','), write(inside(NG,_,P,Q,PbG)), write('==>'), write(outside(NJ,Q1,E,PJ)), nl,
 	outside(NJ,Q1,E,PJ).
 	
 %% Prolog helpers:
@@ -86,6 +93,6 @@ max(A,B,A) :- B =< A.
 max(A,B,B) :- A < B.
 
 test :-
-	sentence([astronomers, saw, stars, with, ears]),
 	init_grammar,
+	sentence([astronomers, saw, stars, with, ears]),
 	level(1).
