@@ -1,10 +1,13 @@
-1:- use_module(library(chr)).
+:- use_module(library(chr)).
 
 :- chr_constraint
 	sentence/1, sentence/2, word/2, sentence_length/1,
         rule/3, root/1, notroot/1,
 	inside/5, level/1, inside_done/0,
 	outside/4.
+
+max(A,B,A) :- A > B.
+max(A,B,B) :- A =< B.
 
 
 %:- set_prolog_flag(chr_toplevel_show_store,false).
@@ -112,7 +115,7 @@ rule(NF,[NG,NJ],PF), outside(NF,P,E,PaF), inside(NG,_,P,Q,PbG), inside(NJ,_,Q1,E
 % Testing stuff
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- [sample_grammar].% A small sample grammar
+:- [grammar].% A small sample grammar
 
 test :-
 	init_grammar,
